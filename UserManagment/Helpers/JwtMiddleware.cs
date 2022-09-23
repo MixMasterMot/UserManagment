@@ -52,7 +52,7 @@ namespace UserManagment.Helpers
             catch
             {
                 // if we endup here the validation has failed
-                // the request wont get too secure routes
+                // the request won't get to secure routes
             }
         }
     }

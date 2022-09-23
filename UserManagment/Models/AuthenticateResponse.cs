@@ -1,4 +1,6 @@
-﻿namespace UserManagment.Models
+﻿using UserManagment.Entities;
+
+namespace UserManagment.Models
 {
     public class AuthenticateResponse
     {

@@ -1,6 +1,6 @@
 ﻿using UserManagment.Models;
 
-namespace UserManagment.Services
+namespace UserManagment.Services.Auth
 {
     public interface IAuthenticationService
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using UserManagment.Models;
+using UserManagment.Entities;
 
 namespace UserManagment.Services
 {
@@ -10,7 +10,7 @@ namespace UserManagment.Services
         Task<User?> GetByIDAsync(string id);
         Task<User?> GetByUserNameAsync(string name);
         Task<List<User>> FindAsync(string term);
-        Task CreateAsync(User newUser);
+        Task<User?> CreateAsync(User newUser);
         Task UpdateAsync(string id, User updatedUser);
         Task RemoveAsync(string id);
     }

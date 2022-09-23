@@ -2,6 +2,7 @@ using Microsoft.OpenApi.Models;
 using UserManagment.Helpers;
 using UserManagment.Models;
 using UserManagment.Services;
+using UserManagment.Services.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 

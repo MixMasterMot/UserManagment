@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using UserManagment.Models;
+using UserManagment.Entities;
 using UserManagment.Services;
 
 namespace UserManagment.Controllers
