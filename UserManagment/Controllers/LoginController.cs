@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UserManagment.Models;
+using UserManagment.Services;
 
 namespace UserManagment.Controllers
 {
@@ -7,10 +9,22 @@ namespace UserManagment.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        [HttpPost]
-        public async Task<IActionResult> Login(string userName, string passowrd)
+        private readonly IAuthenticationService _authenticationService;
+
+        public LoginController(IAuthenticationService authenticationService)
         {
-            throw new NotImplementedException();
+            _authenticationService = authenticationService;
+        }
+
+        [HttpPost("authenticate")]
+        public async Task<IActionResult> Authenticate(AuthenticateRequest model)
+        {
+            var response = await _authenticationService.Authenticate(model);
+            if(response != null)
+            {
+                return Ok(response);
+            }
+            return BadRequest(new {message = "Username or password is incorrect"});
         }
     }
 }

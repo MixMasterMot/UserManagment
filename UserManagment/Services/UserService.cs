@@ -18,8 +18,11 @@ namespace UserManagment.Services
         public async Task<List<User>> GetAsync() =>
             await _usersCollection.Find(_ => true).ToListAsync();
 
-        public async Task<User?> GetAsync(string id) =>
+        public async Task<User?> GetByIDAsync(string id) =>
             await _usersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+        public async Task<User?> GetByUserNameAsync(string name)=>
+            await _usersCollection.Find(x => x.UserName.Equals(name)).FirstOrDefaultAsync();
 
         public async Task<List<User>> FindAsync(string term) =>
             await _usersCollection.Find(x=>x.UserName.Contains(term, StringComparison.InvariantCultureIgnoreCase)).ToListAsync();

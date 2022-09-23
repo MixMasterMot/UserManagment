@@ -7,7 +7,8 @@ namespace UserManagment.Services
     public interface IUserService
     {
         Task<List<User>> GetAsync();
-        Task<User?> GetAsync(string id);
+        Task<User?> GetByIDAsync(string id);
+        Task<User?> GetByUserNameAsync(string name);
         Task<List<User>> FindAsync(string term);
         Task CreateAsync(User newUser);
         Task UpdateAsync(string id, User updatedUser);
