@@ -3,6 +3,7 @@ using UserManagment.Helpers;
 using UserManagment.Models;
 using UserManagment.Services;
 using UserManagment.Services.Auth;
+using UserManagment.Services.UserValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,7 @@ builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("D
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserValidator, UserValidator>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 var app = builder.Build();

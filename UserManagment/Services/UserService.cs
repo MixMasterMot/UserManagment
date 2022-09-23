@@ -39,6 +39,5 @@ namespace UserManagment.Services
 
         public async Task RemoveAsync(string id) =>
             await _usersCollection.DeleteOneAsync(x => x.Id == id);
-
     }
 }

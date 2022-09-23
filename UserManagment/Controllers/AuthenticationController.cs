@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserManagment.Entities;
 using UserManagment.Models;
 using UserManagment.Services;
 using UserManagment.Services.Auth;
+using UserManagment.Services.UserValidation;
 
 namespace UserManagment.Controllers
 {
@@ -11,11 +13,13 @@ namespace UserManagment.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly IAuthenticationService _authenticationService;
-        private readonly IUserService _userService;
+        private IAuthenticationService _authenticationService;
+        private IUserValidator _userValidator;
+        private IUserService _userService;
 
-        public AuthenticationController(IAuthenticationService authenticationService, IUserService userService)
+        public AuthenticationController(IAuthenticationService authenticationService, IUserService userService, IUserValidator userValidator)
         {
+            _userValidator = userValidator;
             _userService = userService;
             _authenticationService = authenticationService;
         }
@@ -32,15 +36,25 @@ namespace UserManagment.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserRegisterRequest userRegisterRequest)
+        public async Task<IActionResult> Register(UserCreateRequest userRegisterRequest)
         {
-            var user = _userService
+            var validationMessage = await _userValidator.Validate(userRegisterRequest);
+            if(validationMessage != null)
+            {
+                return BadRequest(validationMessage);
+            }
+            var user = await _userService.CreateAsync(userRegisterRequest.ToUser());
+            if(user != null)
+            {
+                return Ok(user);
+            }
+            return StatusCode(500);
         }
 
         [HttpPost("sprt")]
         public async Task<IActionResult> sprt(AuthenticateRequest model)
         {
-            var user = new User()
+            var user = new UserCreateRequest()
             {
                 Email="s",
                 FullName="full name",
@@ -49,7 +63,7 @@ namespace UserManagment.Controllers
                 UserRole = UserRole.admin
             };
 
-            await _userService.CreateAsync(user);
+            await _userService.CreateAsync(user.ToUser());
             return Ok(await _userService.GetByUserNameAsync(user.UserName));
         }
     }

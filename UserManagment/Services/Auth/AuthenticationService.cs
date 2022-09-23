@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -23,16 +24,10 @@ namespace UserManagment.Services.Auth
         {
             var user = await _userService.GetByUserNameAsync(request.Username);
             if (user == null) return null;
-            if (DecodePassword(user.Password) != request.Password) return null;
+            if (!BCrypt.Net.BCrypt.Verify(user.Password, request.Password)) return null;
 
             var token = GenerateJwtToken(user);
             return new AuthenticateResponse(user, token);
-        }
-
-        private string DecodePassword(string password)
-        {
-            //TODO build decoder
-            return password;
         }
 
         private string GenerateJwtToken(User user)
