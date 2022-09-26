@@ -12,10 +12,11 @@ namespace UserManagment.Entities
         public string FullName { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
-        public UserRole UserRole { get; set; }
+        public UserRole? UserRole { get; set; }
 
+        // This can be nulled to enable only updating selected fields
         [JsonIgnore]
-        public string Password { get; set; }
+        public string? Password { get; set; }
     }
 
     public enum UserRole

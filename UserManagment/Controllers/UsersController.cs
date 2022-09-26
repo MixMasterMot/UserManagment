@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using UserManagment.Entities;
+using UserManagment.Helpers;
+using UserManagment.Models;
 using UserManagment.Services;
+using UserManagment.Services.UserValidation;
 
 namespace UserManagment.Controllers
 {
@@ -11,14 +13,17 @@ namespace UserManagment.Controllers
     public class UsersController : ControllerBase
     {
         private IUserService _userService;
-        public UsersController(IUserService userService)
+        private IUserValidator _userValidator;
+
+        public UsersController(IUserService userService, IUserValidator userValidator)
         {
             _userService = userService;
+            _userValidator = userValidator;
         }
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<List<User>>> GetUsers()
+        public async Task<ActionResult<List<User>>> GetUsers(int pageSize = 100, int page = 0)
         {
             return await _userService.GetAsync();
         }
@@ -39,29 +44,47 @@ namespace UserManagment.Controllers
         [HttpGet("{search}")]
         public async Task<ActionResult<List<User>>> Search(string search)
         {
-            return await _userService.FindAsync(search);
+            var t = await _userService.FindAsync(search);
+            return t;
         }
 
         [Authorize]
         [HttpPatch("{id:length(24)}")]
-        public async Task<ActionResult<User>> Patch(string id, [FromBody]User user)
+        public async Task<ActionResult<User>> UpdateUser(string id, UserUpdateRequest user)
         {
-            var oldUser = await _userService.GetByIDAsync(id);
+            var validationMessage = await _userValidator.Validate(user);
+            if (validationMessage != null)
+            {
+                return BadRequest(validationMessage);
+            }
+
+            var oldUser = await _userService.GetByIDAsync(user.Id);
             if(oldUser is null)
             {
                 return NotFound();
             }
-            user.Id = oldUser.Id;
-            await _userService.UpdateAsync(id, user);
-            return Ok(oldUser);
+
+            var newUser = user.ToUser();
+            newUser.UserRole = user.UserRole ?? oldUser.UserRole;
+            newUser.Password = user.Password ?? oldUser.Password;
+
+            await _userService.UpdateAsync(newUser);
+            return Ok(newUser);
         }
 
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<User>> CreateUser([FromBody]User user)
+        public async Task<ActionResult<User>> CreateUser(UserCreateRequest user)
         {
-            await _userService.CreateAsync(user);
-            return CreatedAtAction(nameof(GetByID), new { id = user.Id }, user);
+            var validationMessage = await _userValidator.Validate(user);
+            if (validationMessage != null)
+            {
+                return BadRequest(validationMessage);
+            }
+
+            var newUser = user.ToUser();
+            await _userService.CreateAsync(newUser);
+            return CreatedAtAction(nameof(GetByID), new { id = newUser.Id }, user);
         }
 
         [Authorize]

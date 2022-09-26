@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserManagment.Entities;
+using UserManagment.Helpers;
 using UserManagment.Models;
 using UserManagment.Services;
 using UserManagment.Services.Auth;
@@ -24,8 +25,8 @@ namespace UserManagment.Controllers
             _authenticationService = authenticationService;
         }
 
-        [HttpPost("authenticate")]
-        public async Task<IActionResult> Authenticate(AuthenticateRequest model)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(AuthenticateRequest model)
         {
             var response = await _authenticationService.Authenticate(model);
             if(response != null)
@@ -49,22 +50,6 @@ namespace UserManagment.Controllers
                 return Ok(user);
             }
             return StatusCode(500);
-        }
-
-        [HttpPost("sprt")]
-        public async Task<IActionResult> sprt(AuthenticateRequest model)
-        {
-            var user = new UserCreateRequest()
-            {
-                Email="s",
-                FullName="full name",
-                UserName="admin",
-                Password="password",
-                UserRole = UserRole.admin
-            };
-
-            await _userService.CreateAsync(user.ToUser());
-            return Ok(await _userService.GetByUserNameAsync(user.UserName));
         }
     }
 }

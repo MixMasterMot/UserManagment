@@ -2,19 +2,19 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using UserManagment.Models;
+using UserManagment.Config;
 using UserManagment.Services;
 
 namespace UserManagment.Helpers
 {
     public class JwtMiddleware
     {
-        private readonly RequestDelegate _nextRequestDelegate;
+        private readonly RequestDelegate _next;
         private readonly JwtSettings _jwtSettings;
 
-        public JwtMiddleware(RequestDelegate requestDelegate, IOptions<JwtSettings> jwtSettings)
+        public JwtMiddleware(RequestDelegate next, IOptions<JwtSettings> jwtSettings)
         {
-            _nextRequestDelegate = requestDelegate;
+            _next = next;
             _jwtSettings = jwtSettings.Value;
         }
 
@@ -22,15 +22,15 @@ namespace UserManagment.Helpers
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
-            if(token == null)
+            if(token != null)
             {
-                AttachUserToContext(context, userService, token);
+                await AttachUserToContext(context, userService, token);
             }
 
-            await _nextRequestDelegate(context);
+            await _next(context);
         }
 
-        private async void AttachUserToContext(HttpContext context, IUserService userService, string token)
+        private async Task AttachUserToContext(HttpContext context, IUserService userService, string token)
         {
             try
             {
@@ -42,14 +42,13 @@ namespace UserManagment.Helpers
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero // makes token expire at exact time
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var userId = jwtToken.Claims.First(x => x.Type == "id").Value;
                 context.Items["User"] = await userService.GetByIDAsync(userId);
             }
-            catch
+            catch(Exception ex)
             {
                 // if we endup here the validation has failed
                 // the request won't get to secure routes

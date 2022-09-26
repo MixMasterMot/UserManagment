@@ -1,4 +1,4 @@
-﻿namespace UserManagment.Models
+﻿namespace UserManagment.Config
 {
     public class DatabaseSettings
     {

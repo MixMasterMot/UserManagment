@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using UserManagment.Config;
 using UserManagment.Entities;
 using UserManagment.Models;
 
@@ -24,7 +25,7 @@ namespace UserManagment.Services.Auth
         {
             var user = await _userService.GetByUserNameAsync(request.Username);
             if (user == null) return null;
-            if (!BCrypt.Net.BCrypt.Verify(user.Password, request.Password)) return null;
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password)) return null;
 
             var token = GenerateJwtToken(user);
             return new AuthenticateResponse(user, token);
@@ -43,7 +44,7 @@ namespace UserManagment.Services.Auth
             var tokenDescripter = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(1),
+                Expires = DateTime.UtcNow.AddDays(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = handler.CreateToken(tokenDescripter);
