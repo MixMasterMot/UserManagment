@@ -25,6 +25,8 @@ namespace UserManagment.Services.UserValidation
         public async Task<string?> Validate(UserUpdateRequest request)
         {
             if (request.UserName.IsNullOrEmpty()) return "Invalid Username";
+            //TODO
+            //this forces you too also change the username when updating the user
             var user = await _userService.GetByUserNameAsync(request.UserName);
             if (user != null) return "Invalid Username";
             if (request.Email.IsNullOrEmpty()) return "Invalid email";

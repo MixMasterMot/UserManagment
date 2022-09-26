@@ -58,7 +58,7 @@ namespace UserManagment.Controllers
                 return BadRequest(validationMessage);
             }
 
-            var oldUser = await _userService.GetByIDAsync(user.Id);
+            var oldUser = await _userService.GetByIDAsync(id);
             if(oldUser is null)
             {
                 return NotFound();
@@ -70,21 +70,6 @@ namespace UserManagment.Controllers
 
             await _userService.UpdateAsync(newUser);
             return Ok(newUser);
-        }
-
-        [Authorize]
-        [HttpPost]
-        public async Task<ActionResult<User>> CreateUser(UserCreateRequest user)
-        {
-            var validationMessage = await _userValidator.Validate(user);
-            if (validationMessage != null)
-            {
-                return BadRequest(validationMessage);
-            }
-
-            var newUser = user.ToUser();
-            await _userService.CreateAsync(newUser);
-            return CreatedAtAction(nameof(GetByID), new { id = newUser.Id }, user);
         }
 
         [Authorize]
